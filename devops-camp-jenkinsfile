@@ -5,7 +5,7 @@ pipeline {
 environment {
 PIPELINE_HASH = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
 HARBOR_REGISTRY = 'harbor.dev.afsmtddso.com'
-HARBOR_PROJECT = 'lrivera-devsecops' 
+HARBOR_PROJECT = 'lrivera-devsecops'
 APP_IMAGE_NAME = 'app'
 DB_IMAGE_NAME = 'db'
 }
@@ -18,7 +18,7 @@ dir('afs-labs-student') {
 script{
 env.APP_HASH = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
 }
-} 
+}
 }
  }
  stage('Application docker build') {
@@ -50,10 +50,15 @@ echo err.getMessage()
  }
 stage('Database docker build') {
 steps {
-// modify to build db image and push to harbor
+withCredentials([usernameColonPassword(credentialsId: 'lrivera-harbor-auth', variable: 'HARBOR-AUTH')]) {
+script {
+docker.build('$DB_IMAGE_NAME-$APP_HASH', '-f ./db/Dockerfile ./afs-labs-student')
+docker.withRegistry('https://$HARBOR_REGISTRY', 'lrivera-harbor-auth') {
+sh 'docker tag $DB_IMAGE_NAME-$APP_HASH $HARBOR_REGISTRY/$HARBOR_PROJECT/$DB_IMAGE_NAME:$APP_HASH-$PIPELINE_HASH'
+sh 'docker push $HARBOR_REGISTRY/$HARBOR_PROJECT/$DB_IMAGE_NAME:$APP_HASH-$PIPELINE_HASH'
 }
-post {
-// modify to clean local db image build
+}
+}
 }
 post {
 always {
