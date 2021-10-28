@@ -28,8 +28,7 @@ pipeline {
         }
         stage('DB changes: true') {
             when {
-                environment name: 'BUILD_DB',
-                value: 'true'
+                environment name: 'BUILD_DB',value: 'true'
             }
             stages {
                 stage('Database docker build') {
@@ -72,6 +71,7 @@ pipeline {
                 }
             }
         }
+	}
         post {
             cleanup {
                 echo "Clean workspace"
