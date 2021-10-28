@@ -1,7 +1,7 @@
 import requests, sys, json, getopt
 
 ## Arguments needed from user ##
-argList = sys.argv[1:]
+argList = sys.argv[2:]
 
 ## Modified to add ‘-h’ option ##
 options = 'c:i:p:r:h:'
