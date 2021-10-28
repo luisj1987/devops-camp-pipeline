@@ -60,9 +60,11 @@ pipeline {
                 }
                 stage('Security scanning') {
                     steps {
-                        // modify to scan database image
-                        echo "Security scanning..."
-                    }
+						withCredentials([usernamePassword(credentialsId: 'lrivera-harbor-auth', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+						echo "Scanning $DB_IMAGE_NAME image"
+						sh 'python harbor_scanner.py -i $DB_IMAGE_NAME -r $HARBOR_REGISTRY -p $HARBOR_PROJECT -c ${USERNAME}:${PASSWORD}'
+						}
+					}
                 }
                 stage('Deploy') {
                     steps {
@@ -71,7 +73,7 @@ pipeline {
                 }
             }
         }
-	}
+        }
         post {
             cleanup {
                 echo "Clean workspace"
